@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { PerplexityAttribution } from "@/components/PerplexityAttribution";
+import DashboardGauges from "@/components/DashboardGauges";
 
 type FullUpdate = Update & { items: UpdateItem[]; feedback: Feedback[] };
 
@@ -26,7 +27,7 @@ export default function PublicView() {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto px-5 py-10 space-y-4">
+      <div className="max-w-6xl mx-auto px-5 py-10 space-y-4">
         <Skeleton className="h-8 w-48 rounded-lg" />
         <Skeleton className="h-64 rounded-xl" />
       </div>
@@ -44,50 +45,73 @@ export default function PublicView() {
   const dateObj = parseISO(data.date);
 
   return (
-    <div className="max-w-3xl mx-auto px-5 py-10">
+    <div className="max-w-[1200px] mx-auto px-6 py-8 md:py-10">
       <div className="mb-8">
         <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1">
           KMJZ Holdings — Daily Update
         </p>
-        <h1 className="text-xl font-semibold tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
           {format(dateObj, "EEEE, MMMM d, yyyy")}
         </h1>
       </div>
 
-      {SECTIONS.map((section) => {
-        const sectionItems = data.items.filter((i) => i.section === section.key);
-        const sectionFeedback = data.feedback.filter((f) => f.section === section.key);
-        if (sectionItems.length === 0) return null;
+      {/* Two-column split: Gauges | Updates */}
+      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8 items-start">
+        {/* Left: Dashboard gauges */}
+        <div className="lg:sticky lg:top-8">
+          <DashboardGauges />
+        </div>
 
-        return (
-          <section key={section.key} className="mb-8">
-            <div className="flex items-center gap-2.5 mb-3">
-              <span className={`w-2 h-2 rounded-full ${section.dotClass}`} />
-              <h2 className="text-[13px] font-semibold uppercase tracking-wider text-foreground">
-                {section.label}
-              </h2>
-            </div>
-            <div className="space-y-1.5">
-              {sectionItems.map((item) => (
-                <PublicExpandableItem key={item.id} item={item} />
-              ))}
-            </div>
-            <PublicFeedbackForm updateId={data.id} section={section.key} />
-            {sectionFeedback.length > 0 && (
-              <div className="mt-3 space-y-2">
-                {sectionFeedback.map((fb) => (
-                  <div key={fb.id} className="pl-4 border-l-2 border-border py-1.5">
-                    <p className="text-[13px] text-foreground">{fb.message}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {fb.authorName} &middot; {format(parseISO(fb.createdAt), "MMM d, h:mm a")}
-                    </p>
+        {/* Right: Update sections */}
+        <div>
+          {SECTIONS.map((section) => {
+            const sectionItems = data.items.filter((i) => i.section === section.key);
+            const sectionFeedback = data.feedback.filter((f) => f.section === section.key);
+            if (sectionItems.length === 0) return null;
+
+            return (
+              <section key={section.key} className="mb-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className={`w-2.5 h-2.5 rounded-full ${section.dotClass}`} />
+                  <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                    {section.label}
+                  </h2>
+                  {sectionFeedback.length > 0 && (
+                    <span className="text-xs text-muted-foreground/60 flex items-center gap-1">
+                      <MessageSquare size={12} />
+                      {sectionFeedback.length}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {sectionItems.map((item) => (
+                    <PublicExpandableItem key={item.id} item={item} />
+                  ))}
+                </div>
+                <PublicFeedbackForm updateId={data.id} section={section.key} />
+                {sectionFeedback.length > 0 && (
+                  <div className="mt-4 space-y-3 ml-1">
+                    {sectionFeedback.map((fb) => (
+                      <div key={fb.id} className="pl-5 border-l-2 border-border/60 py-1">
+                        <p className="text-base text-foreground leading-relaxed">{fb.message}</p>
+                        <p className="text-xs text-muted-foreground/70 mt-1">
+                          {fb.authorName} &middot; {format(parseISO(fb.createdAt), "MMM d, h:mm a")}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-        );
-      })}
+                )}
+              </section>
+            );
+          })}
+
+          {data.items.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground text-base">No items in this update</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mt-16">
         <PerplexityAttribution />
@@ -102,28 +126,28 @@ function PublicExpandableItem({ item }: { item: UpdateItem }) {
 
   return (
     <div
-      className={`rounded-xl border border-border bg-card overflow-hidden transition-all ${
-        hasDetail ? "cursor-pointer" : ""
+      className={`rounded-xl border border-border/70 bg-card overflow-hidden transition-all ${
+        hasDetail ? "cursor-pointer hover:border-border" : ""
       }`}
       onClick={() => hasDetail && setOpen(!open)}
     >
-      <div className="flex items-center justify-between px-4 py-3">
-        <p className="text-[14px] text-foreground font-medium leading-snug">
+      <div className="flex items-center justify-between px-5 py-4">
+        <p className="text-lg font-medium leading-snug text-foreground">
           {item.title}
         </p>
         {hasDetail && (
           <ChevronDown
-            size={15}
-            className={`text-muted-foreground transition-transform duration-200 shrink-0 ml-3 ${
+            size={18}
+            className={`text-muted-foreground/50 transition-transform duration-200 shrink-0 ml-4 ${
               open ? "rotate-180" : ""
             }`}
           />
         )}
       </div>
       {open && hasDetail && (
-        <div className="px-4 pb-3.5 pt-0">
-          <div className="border-t border-border pt-3">
-            <p className="text-[13px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
+        <div className="px-5 pb-5 pt-0">
+          <div className="border-t border-border/50 pt-4">
+            <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {item.detail}
             </p>
           </div>
