@@ -389,6 +389,8 @@ const AP_ITEMS = [
   { vendor: "Woody Active", amount: 38000 },
   { vendor: "RMS Direct", amount: 160000 },
   { vendor: "Cross Pac Ventures", amount: 149250 },
+  { vendor: "Chatsworth Lease", amount: 52000 },
+  { vendor: "FAST Business Cash", amount: 32000 },
 ];
 
 export function APBox() {
