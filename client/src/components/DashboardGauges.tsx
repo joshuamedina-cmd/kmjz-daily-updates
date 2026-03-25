@@ -333,64 +333,104 @@ const AR_ITEMS = [
   { source: "Chase JJ Konsult", amount: 48000, note: "Account Closed" },
 ];
 
-export function ARBox({ onOpen }: { onOpen?: () => void }) {
+export function ARBox() {
+  const [expanded, setExpanded] = useState(false);
   const total = AR_ITEMS.reduce((sum, i) => sum + i.amount, 0);
 
   return (
     <div
       className="gauge-card cursor-pointer hover:border-foreground/20 transition-colors"
       data-testid="gauge-ar"
-      onClick={onOpen}
+      onClick={() => setExpanded(!expanded)}
     >
       <div className="gauge-label">AR (Receivables)</div>
-      <div className="flex flex-col gap-1.5 px-3 py-2">
+      <div className="flex flex-col items-center gap-1 py-3">
         <div className="text-2xl font-bold text-emerald-600 tracking-tight">
           ${total.toLocaleString()}
         </div>
-        {AR_ITEMS.map((item) => (
-          <div key={item.source} className="flex items-center justify-between text-[11px]">
-            <span className="text-muted-foreground">
-              {item.source}
-              {item.note && (
-                <span className="ml-1 text-red-500/70 text-[9px] font-medium uppercase">
-                  ({item.note})
-                </span>
-              )}
-            </span>
-            <span className="font-semibold text-foreground">
-              ${item.amount.toLocaleString()}
-            </span>
-          </div>
-        ))}
+        <div className="text-[10px] text-muted-foreground/60">
+          {expanded ? "tap to collapse" : "tap for details"}
+        </div>
       </div>
+
+      {expanded && (
+        <div className="border-t border-border/50 px-3 py-2 space-y-1.5">
+          {AR_ITEMS.map((item) => (
+            <div key={item.source} className="flex items-center justify-between text-[11px]">
+              <span className="text-muted-foreground">
+                {item.source}
+                {item.note && (
+                  <span className="ml-1 text-red-500/70 text-[9px] font-medium uppercase">
+                    ({item.note})
+                  </span>
+                )}
+              </span>
+              <span className="font-semibold text-foreground">
+                ${item.amount.toLocaleString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 /* ──────────────────────────────────────────────
-   AP — Accounts Payable (Coming Soon placeholder
-   until spreadsheet data is loaded)
+   AP — Accounts Payable
    ────────────────────────────────────────────── */
-export function APBox({ onOpen }: { onOpen?: () => void }) {
+const AP_ITEMS = [
+  { vendor: "Ripal Transactions", amount: 109200 },
+  { vendor: "Vishaal Mali Transactions", amount: 120750 },
+  { vendor: "Ashlynn Marketing Group", amount: 174750 },
+  { vendor: "Palmdale Lease", amount: 111288 },
+  { vendor: "Peanut Supply", amount: 246775 },
+  { vendor: "Organic Kratom Siam Co.", amount: 46400 },
+  { vendor: "Woody Active", amount: 38000 },
+  { vendor: "RMS Direct", amount: 160000 },
+  { vendor: "Cross Pac Ventures", amount: 149250 },
+];
+
+export function APBox() {
+  const [expanded, setExpanded] = useState(false);
+  const total = AP_ITEMS.reduce((sum, i) => sum + i.amount, 0);
+
   return (
     <div
-      className="gauge-card gauge-card--muted cursor-pointer hover:border-foreground/20 transition-colors"
+      className="gauge-card cursor-pointer hover:border-foreground/20 transition-colors"
       data-testid="gauge-ap"
-      onClick={onOpen}
+      onClick={() => setExpanded(!expanded)}
     >
       <div className="gauge-label">AP (Payables)</div>
-      <div className="coming-soon-body">
-        <div className="coming-soon-icon">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground/40">
-            <rect x="3" y="3" width="18" height="18" rx="3" />
-            <path d="M9 12h6" />
-            <path d="M12 9v6" />
-          </svg>
+      <div className="flex flex-col items-center gap-1 py-3">
+        <div className="text-2xl font-bold text-red-500 tracking-tight">
+          -${total.toLocaleString()}
         </div>
-        <span className="text-[13px] font-medium text-muted-foreground/50 tracking-wide uppercase">
-          Upload Pending
-        </span>
+        <div className="text-[10px] text-muted-foreground/60">
+          {expanded ? "tap to collapse" : `${AP_ITEMS.length} vendors · tap for details`}
+        </div>
       </div>
+
+      {expanded && (
+        <div className="border-t border-border/50 px-3 py-2 space-y-1.5">
+          {AP_ITEMS.map((item) => (
+            <div key={item.vendor} className="flex items-center justify-between text-[11px]">
+              <span className="text-muted-foreground truncate mr-2">
+                {item.vendor}
+              </span>
+              <span className="font-semibold text-red-500/90 shrink-0">
+                -${item.amount.toLocaleString()}
+              </span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between text-[11px] pt-1.5 mt-1.5 border-t border-border/40">
+            <span className="font-bold text-foreground">TOTAL</span>
+            <span className="font-bold text-red-500">
+              -${total.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
