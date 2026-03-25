@@ -326,12 +326,59 @@ export function SalesGauge({ value = 100 }: { value?: number }) {
 }
 
 /* ──────────────────────────────────────────────
-   AR / AP — "Coming Soon" placeholder boxes
+   AR — Accounts Receivable
    ────────────────────────────────────────────── */
-export function ComingSoonBox({ label }: { label: string }) {
+const AR_ITEMS = [
+  { source: "QuickBooks", amount: 208000 },
+  { source: "Chase JJ Konsult", amount: 48000, note: "Account Closed" },
+];
+
+export function ARBox({ onOpen }: { onOpen?: () => void }) {
+  const total = AR_ITEMS.reduce((sum, i) => sum + i.amount, 0);
+
   return (
-    <div className="gauge-card gauge-card--muted" data-testid={`gauge-${label.toLowerCase()}`}>
-      <div className="gauge-label">{label}</div>
+    <div
+      className="gauge-card cursor-pointer hover:border-foreground/20 transition-colors"
+      data-testid="gauge-ar"
+      onClick={onOpen}
+    >
+      <div className="gauge-label">AR (Receivables)</div>
+      <div className="flex flex-col gap-1.5 px-3 py-2">
+        <div className="text-2xl font-bold text-emerald-600 tracking-tight">
+          ${total.toLocaleString()}
+        </div>
+        {AR_ITEMS.map((item) => (
+          <div key={item.source} className="flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">
+              {item.source}
+              {item.note && (
+                <span className="ml-1 text-red-500/70 text-[9px] font-medium uppercase">
+                  ({item.note})
+                </span>
+              )}
+            </span>
+            <span className="font-semibold text-foreground">
+              ${item.amount.toLocaleString()}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   AP — Accounts Payable (Coming Soon placeholder
+   until spreadsheet data is loaded)
+   ────────────────────────────────────────────── */
+export function APBox({ onOpen }: { onOpen?: () => void }) {
+  return (
+    <div
+      className="gauge-card gauge-card--muted cursor-pointer hover:border-foreground/20 transition-colors"
+      data-testid="gauge-ap"
+      onClick={onOpen}
+    >
+      <div className="gauge-label">AP (Payables)</div>
       <div className="coming-soon-body">
         <div className="coming-soon-icon">
           <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground/40">
@@ -341,7 +388,7 @@ export function ComingSoonBox({ label }: { label: string }) {
           </svg>
         </div>
         <span className="text-[13px] font-medium text-muted-foreground/50 tracking-wide uppercase">
-          Coming Soon
+          Upload Pending
         </span>
       </div>
     </div>
@@ -361,8 +408,8 @@ export default function DashboardGauges() {
         <ProductionGauge value={7.2} />
         <FinancialHealthGauge value={1} />
         <SalesGauge value={100} />
-        <ComingSoonBox label="AR" />
-        <ComingSoonBox label="AP" />
+        <ARBox />
+        <APBox />
       </div>
     </div>
   );
