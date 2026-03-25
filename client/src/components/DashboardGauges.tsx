@@ -348,7 +348,17 @@ export function ARBox() {
         <div className="text-2xl font-bold text-emerald-600 tracking-tight">
           ${total.toLocaleString()}
         </div>
-        <div className="text-[10px] text-muted-foreground/60">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9V3" />
+            <path d="M3 5l3-3 3 3" />
+          </svg>
+          $48K up
+        </div>
+        <div className="text-[9px] text-muted-foreground/50 uppercase tracking-wide">
+          14 day movement
+        </div>
+        <div className="text-[10px] text-muted-foreground/60 mt-1">
           {expanded ? "tap to collapse" : "tap for details"}
         </div>
       </div>
@@ -408,7 +418,17 @@ export function APBox() {
         <div className="text-2xl font-bold text-red-500 tracking-tight">
           -${total.toLocaleString()}
         </div>
-        <div className="text-[10px] text-muted-foreground/60">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-red-500">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 3V9" />
+            <path d="M3 7l3 3 3-3" />
+          </svg>
+          $72K down
+        </div>
+        <div className="text-[9px] text-muted-foreground/50 uppercase tracking-wide">
+          14 day movement
+        </div>
+        <div className="text-[10px] text-muted-foreground/60 mt-1">
           {expanded ? "tap to collapse" : `${AP_ITEMS.length} vendors · tap for details`}
         </div>
       </div>
