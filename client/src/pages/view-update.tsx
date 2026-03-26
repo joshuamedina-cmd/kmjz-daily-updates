@@ -101,7 +101,7 @@ export default function ViewUpdate() {
       {/* Action bar */}
       {data.status === "published" && (
         <div className="flex flex-wrap items-center gap-2 mb-8 pb-6 border-b border-border">
-          <CopyLinkButton url={shareUrl} />
+          <CopyLinkButton url={shareUrl} dateObj={dateObj} />
         </div>
       )}
 
@@ -333,15 +333,28 @@ function FeedbackForm({ updateId, section }: { updateId: number; section: string
   );
 }
 
-function CopyLinkButton({ url }: { url: string }) {
+function CopyLinkButton({ url, dateObj }: { url: string; dateObj: Date }) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
+    const label = `KMJZ Daily Update — ${format(dateObj, "EEEE, MMMM d")}`;
+    const plainText = `${label}\n${url}`;
+    const richHtml = `<a href="${url}">${label}</a>`;
+
     try {
-      await navigator.clipboard.writeText(url);
+      // Try rich copy first — links show as clickable text in iMessage, WhatsApp, etc.
+      if (navigator.clipboard && typeof ClipboardItem !== "undefined") {
+        const item = new ClipboardItem({
+          "text/html": new Blob([richHtml], { type: "text/html" }),
+          "text/plain": new Blob([plainText], { type: "text/plain" }),
+        });
+        await navigator.clipboard.write([item]);
+      } else {
+        await navigator.clipboard.writeText(plainText);
+      }
     } catch {
       const ta = document.createElement("textarea");
-      ta.value = url;
+      ta.value = plainText;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
