@@ -467,7 +467,7 @@ export default function DashboardGauges() {
         At a Glance
       </h2>
       <div className="gauges-grid">
-        <ProductionGauge value={15} />
+        <ProductionGauge value={7.4} />
         <FinancialHealthGauge value={1} />
         <SalesGauge value={100} />
         <ARBox />
