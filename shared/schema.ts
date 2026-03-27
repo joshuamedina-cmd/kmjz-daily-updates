@@ -31,10 +31,18 @@ export const feedback = sqliteTable("feedback", {
   createdAt: text("created_at").notNull(),
 });
 
+// Dashboard gauge configuration — single row, key-value store
+export const gaugeConfig = sqliteTable("gauge_config", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  key: text("key").notNull().unique(), // e.g. "production", "financialHealth", "sales"
+  value: text("value").notNull(), // JSON string for flexibility
+});
+
 // Insert schemas
 export const insertUpdateSchema = createInsertSchema(updates).omit({ id: true });
 export const insertUpdateItemSchema = createInsertSchema(updateItems).omit({ id: true });
 export const insertFeedbackSchema = createInsertSchema(feedback).omit({ id: true });
+export const insertGaugeConfigSchema = createInsertSchema(gaugeConfig).omit({ id: true });
 
 // Types
 export type Update = typeof updates.$inferSelect;
@@ -43,3 +51,5 @@ export type UpdateItem = typeof updateItems.$inferSelect;
 export type InsertUpdateItem = z.infer<typeof insertUpdateItemSchema>;
 export type Feedback = typeof feedback.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+export type GaugeConfig = typeof gaugeConfig.$inferSelect;
+export type InsertGaugeConfig = z.infer<typeof insertGaugeConfigSchema>;

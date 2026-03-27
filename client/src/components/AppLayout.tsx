@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import type { Update } from "@shared/schema";
 import { format, parseISO, isToday } from "date-fns";
 import { useTheme } from "./ThemeProvider";
-import { Sun, Moon, Sparkles, Menu, X } from "lucide-react";
+import { Sun, Moon, Sparkles, Menu, X, Settings2 } from "lucide-react";
 import { useState } from "react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -53,8 +53,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
         </div>
 
-        {/* New update button — AI entry */}
-        <div className="px-3 pt-3 pb-1">
+        {/* Nav buttons */}
+        <div className="px-3 pt-3 pb-1 space-y-0.5">
           <Link href="/new">
             <span
               onClick={() => setMobileOpen(false)}
@@ -67,6 +67,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Sparkles size={15} />
               New Update
+            </span>
+          </Link>
+          <Link href="/control">
+            <span
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer transition-colors ${
+                location === "/control"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--sidebar-accent))]"
+              }`}
+              data-testid="nav-control"
+            >
+              <Settings2 size={15} />
+              Control Panel
             </span>
           </Link>
         </div>

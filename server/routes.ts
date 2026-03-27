@@ -278,6 +278,49 @@ ${rawText}`,
     }
   });
 
+  // ─── Gauge Config ─────────────────────────────────────────
+  app.get("/api/gauges", (_req, res) => {
+    const config = storage.getGaugeConfig();
+    // Merge with defaults
+    const defaults = {
+      production: 7.4,
+      financialHealth: 1,
+      sales: 100,
+      arItems: [
+        { source: "QuickBooks", amount: 208000 },
+        { source: "Chase JJ Konsult", amount: 48000, note: "Account Closed" },
+      ],
+      apItems: [
+        { vendor: "Ripal Transactions", amount: 109200 },
+        { vendor: "Vishaal Mali Transactions", amount: 120750 },
+        { vendor: "Ashlynn Marketing Group", amount: 174750 },
+        { vendor: "Palmdale Lease", amount: 111288 },
+        { vendor: "Peanut Supply", amount: 246775 },
+        { vendor: "Organic Kratom Siam Co.", amount: 46400 },
+        { vendor: "Woody Active", amount: 38000 },
+        { vendor: "RMS Direct", amount: 160000 },
+        { vendor: "Cross Pac Ventures", amount: 149250 },
+        { vendor: "Chatsworth Lease", amount: 42000 },
+        { vendor: "FAST Business Cash", amount: 32000 },
+      ],
+      arMovement: { direction: "up", amount: "$48K", label: "14 day movement" },
+      apMovement: { direction: "down", amount: "$72K", label: "14 day movement" },
+    };
+    res.json({ ...defaults, ...config });
+  });
+
+  app.patch("/api/gauges", (req, res) => {
+    const updates = req.body;
+    if (typeof updates !== "object" || updates === null) {
+      return res.status(400).json({ error: "Body must be an object" });
+    }
+    for (const [key, value] of Object.entries(updates)) {
+      storage.setGaugeConfig(key, value);
+    }
+    const config = storage.getGaugeConfig();
+    res.json(config);
+  });
+
   // ─── Config endpoint for frontend ──────────────────────────
   app.get("/api/config", (_req, res) => {
     res.json({

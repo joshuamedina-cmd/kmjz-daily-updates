@@ -11,6 +11,7 @@ import ViewUpdate from "@/pages/view-update";
 import TodayRedirect from "@/pages/today-redirect";
 import PublicView from "@/pages/public-view";
 import AIEntry from "@/pages/ai-entry";
+import ControlPanel from "@/pages/control-panel";
 import NotFound from "@/pages/not-found";
 
 function AppRouter() {
@@ -18,6 +19,7 @@ function AppRouter() {
     <Switch>
       <Route path="/" component={TodayRedirect} />
       <Route path="/new" component={AIEntry} />
+      <Route path="/control" component={ControlPanel} />
       <Route path="/create" component={CreateUpdate} />
       <Route path="/update/:id" component={ViewUpdate} />
       <Route path="/view/:id" component={PublicView} />

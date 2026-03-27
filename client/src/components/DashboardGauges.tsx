@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 /* ──────────────────────────────────────────────
    PRODUCTION SPEEDOMETER
@@ -328,14 +329,16 @@ export function SalesGauge({ value = 100 }: { value?: number }) {
 /* ──────────────────────────────────────────────
    AR — Accounts Receivable
    ────────────────────────────────────────────── */
-const AR_ITEMS = [
+const DEFAULT_AR_ITEMS = [
   { source: "QuickBooks", amount: 208000 },
   { source: "Chase JJ Konsult", amount: 48000, note: "Account Closed" },
 ];
 
-export function ARBox() {
+export function ARBox({ items, movement }: { items?: any[]; movement?: { direction: string; amount: string; label: string } }) {
   const [expanded, setExpanded] = useState(false);
+  const AR_ITEMS = items || DEFAULT_AR_ITEMS;
   const total = AR_ITEMS.reduce((sum, i) => sum + i.amount, 0);
+  const mv = movement || { direction: "up", amount: "$48K", label: "14 day movement" };
 
   return (
     <div
@@ -348,15 +351,18 @@ export function ARBox() {
         <div className="text-2xl font-bold text-emerald-600 tracking-tight">
           ${total.toLocaleString()}
         </div>
-        <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+        <div className={`flex items-center gap-1 text-[11px] font-semibold ${mv.direction === "up" ? "text-emerald-600" : "text-red-500"}`}>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 9V3" />
-            <path d="M3 5l3-3 3 3" />
+            {mv.direction === "up" ? (
+              <><path d="M6 9V3" /><path d="M3 5l3-3 3 3" /></>
+            ) : (
+              <><path d="M6 3V9" /><path d="M3 7l3 3 3-3" /></>
+            )}
           </svg>
-          $48K up
+          {mv.amount} {mv.direction}
         </div>
         <div className="text-[9px] text-muted-foreground/50 uppercase tracking-wide">
-          14 day movement
+          {mv.label}
         </div>
         <div className="text-[10px] text-muted-foreground/60 mt-1">
           {expanded ? "tap to collapse" : "tap for details"}
@@ -365,7 +371,7 @@ export function ARBox() {
 
       {expanded && (
         <div className="border-t border-border/50 px-3 py-2 space-y-1.5">
-          {AR_ITEMS.map((item) => (
+          {AR_ITEMS.map((item: any) => (
             <div key={item.source} className="flex items-center justify-between text-[11px]">
               <span className="text-muted-foreground">
                 {item.source}
@@ -389,7 +395,7 @@ export function ARBox() {
 /* ──────────────────────────────────────────────
    AP — Accounts Payable
    ────────────────────────────────────────────── */
-const AP_ITEMS = [
+const DEFAULT_AP_ITEMS = [
   { vendor: "Ripal Transactions", amount: 109200 },
   { vendor: "Vishaal Mali Transactions", amount: 120750 },
   { vendor: "Ashlynn Marketing Group", amount: 174750 },
@@ -403,9 +409,11 @@ const AP_ITEMS = [
   { vendor: "FAST Business Cash", amount: 32000 },
 ];
 
-export function APBox() {
+export function APBox({ items, movement }: { items?: any[]; movement?: { direction: string; amount: string; label: string } }) {
   const [expanded, setExpanded] = useState(false);
+  const AP_ITEMS = items || DEFAULT_AP_ITEMS;
   const total = AP_ITEMS.reduce((sum, i) => sum + i.amount, 0);
+  const mv = movement || { direction: "down", amount: "$72K", label: "14 day movement" };
 
   return (
     <div
@@ -418,15 +426,18 @@ export function APBox() {
         <div className="text-2xl font-bold text-red-500 tracking-tight">
           -${total.toLocaleString()}
         </div>
-        <div className="flex items-center gap-1 text-[11px] font-semibold text-red-500">
+        <div className={`flex items-center gap-1 text-[11px] font-semibold ${mv.direction === "down" ? "text-red-500" : "text-emerald-600"}`}>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 3V9" />
-            <path d="M3 7l3 3 3-3" />
+            {mv.direction === "down" ? (
+              <><path d="M6 3V9" /><path d="M3 7l3 3 3-3" /></>
+            ) : (
+              <><path d="M6 9V3" /><path d="M3 5l3-3 3 3" /></>
+            )}
           </svg>
-          $72K down
+          {mv.amount} {mv.direction}
         </div>
         <div className="text-[9px] text-muted-foreground/50 uppercase tracking-wide">
-          14 day movement
+          {mv.label}
         </div>
         <div className="text-[10px] text-muted-foreground/60 mt-1">
           {expanded ? "tap to collapse" : `${AP_ITEMS.length} vendors · tap for details`}
@@ -435,7 +446,7 @@ export function APBox() {
 
       {expanded && (
         <div className="border-t border-border/50 px-3 py-2 space-y-1.5">
-          {AP_ITEMS.map((item) => (
+          {AP_ITEMS.map((item: any) => (
             <div key={item.vendor} className="flex items-center justify-between text-[11px]">
               <span className="text-muted-foreground truncate mr-2">
                 {item.vendor}
@@ -461,17 +472,23 @@ export function APBox() {
    FULL DASHBOARD PANEL
    ────────────────────────────────────────────── */
 export default function DashboardGauges() {
+  const { data: gauges } = useQuery<any>({ queryKey: ["/api/gauges"] });
+
+  const production = gauges?.production ?? 7.4;
+  const financialHealth = gauges?.financialHealth ?? 1;
+  const sales = gauges?.sales ?? 100;
+
   return (
     <div className="dashboard-gauges">
       <h2 className="text-[13px] font-semibold uppercase tracking-widest text-muted-foreground mb-4">
         At a Glance
       </h2>
       <div className="gauges-grid">
-        <ProductionGauge value={7.4} />
-        <FinancialHealthGauge value={1} />
-        <SalesGauge value={100} />
-        <ARBox />
-        <APBox />
+        <ProductionGauge value={production} />
+        <FinancialHealthGauge value={financialHealth} />
+        <SalesGauge value={sales} />
+        <ARBox items={gauges?.arItems} movement={gauges?.arMovement} />
+        <APBox items={gauges?.apItems} movement={gauges?.apMovement} />
       </div>
     </div>
   );

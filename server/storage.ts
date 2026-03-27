@@ -2,6 +2,7 @@ import {
   type Update, type InsertUpdate, updates,
   type UpdateItem, type InsertUpdateItem, updateItems,
   type Feedback, type InsertFeedback, feedback,
+  type GaugeConfig, type InsertGaugeConfig, gaugeConfig,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
@@ -30,6 +31,10 @@ export interface IStorage {
   getFeedbackByUpdate(updateId: number): Feedback[];
   getFeedbackBySection(updateId: number, section: string): Feedback[];
   createFeedback(data: InsertFeedback): Feedback;
+
+  // Gauge Config
+  getGaugeConfig(): Record<string, any>;
+  setGaugeConfig(key: string, value: any): void;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -82,6 +87,25 @@ export class DatabaseStorage implements IStorage {
 
   createFeedback(data: InsertFeedback): Feedback {
     return db.insert(feedback).values(data).returning().get();
+  }
+
+  getGaugeConfig(): Record<string, any> {
+    const rows = db.select().from(gaugeConfig).all();
+    const result: Record<string, any> = {};
+    for (const row of rows) {
+      try { result[row.key] = JSON.parse(row.value); } catch { result[row.key] = row.value; }
+    }
+    return result;
+  }
+
+  setGaugeConfig(key: string, value: any): void {
+    const jsonVal = JSON.stringify(value);
+    const existing = db.select().from(gaugeConfig).where(eq(gaugeConfig.key, key)).get();
+    if (existing) {
+      db.update(gaugeConfig).set({ value: jsonVal }).where(eq(gaugeConfig.key, key)).run();
+    } else {
+      db.insert(gaugeConfig).values({ key, value: jsonVal }).run();
+    }
   }
 }
 
